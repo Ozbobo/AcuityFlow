@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { recommend } from '../src/lib/recommend';
 import { createEmptyRooms, getRoom } from '../src/lib/floor';
-import { ShiftState, Criticality, Room, RN } from '../src/lib/types';
+import { ShiftState, Criticality, RN } from '../src/lib/types';
 
 function buildState(args: {
   ratio: number;
