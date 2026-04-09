@@ -1,0 +1,29 @@
+.room-cell {
+  width: 36px;
+  height: 36px;
+  border-radius: 6px;
+  background: var(--crit-empty-bg);
+  color: var(--crit-empty-fg);
+  font-size: 10px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  user-select: none;
+}
+
+.room-cell.high   { background: var(--crit-high-bg); color: var(--crit-high-fg); }
+.room-cell.medium { background: var(--crit-med-bg);  color: var(--crit-med-fg); }
+.room-cell.low    { background: var(--crit-low-bg);  color: var(--crit-low-fg); }
+
+.room-cell.rn-0 { box-shadow: inset 0 0 0 3px var(--rn-0); }
+.room-cell.rn-1 { box-shadow: inset 0 0 0 3px var(--rn-1); }
+.room-cell.rn-2 { box-shadow: inset 0 0 0 3px var(--rn-2); }
+.room-cell.rn-3 { box-shadow: inset 0 0 0 3px var(--rn-3); }
+.room-cell.rn-4 { box-shadow: inset 0 0 0 3px var(--rn-4); }
+.room-cell.rn-5 { box-shadow: inset 0 0 0 3px var(--rn-5); }
+
+.room-cell.highlight { outline: 3px solid var(--primary); outline-offset: 2px; }
+
+.room-cell[role='button'] { cursor: pointer; }
