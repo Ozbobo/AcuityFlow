@@ -4,7 +4,7 @@ export default defineConfig({
   testDir: './tests/e2e',
   timeout: 30_000,
   use: {
-    baseURL: 'http://localhost:4173/momsite/',
+    baseURL: 'http://localhost:4173/AcuityFlow/',
     trace: 'retain-on-failure',
   },
   webServer: {

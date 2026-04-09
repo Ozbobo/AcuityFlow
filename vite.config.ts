@@ -3,10 +3,10 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
 
-// base path is the repo name for GitHub Pages at https://<user>.github.io/momsite/
+// base path is the repo name for GitHub Pages at https://<user>.github.io/AcuityFlow/
 // Change to '/' if deploying to a root (user.github.io) repo or custom domain.
 export default defineConfig({
-  base: '/momsite/',
+  base: '/AcuityFlow/',
   plugins: [
     react(),
     VitePWA({

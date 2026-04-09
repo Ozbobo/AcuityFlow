@@ -35,7 +35,7 @@ runs tests, builds, and publishes to GitHub Pages. The live URL is
 `https://<user>.github.io/<repo-name>/`.
 
 The `base` path in `vite.config.ts` must match the repo name for assets to
-resolve correctly. It currently defaults to `/momsite/`.
+resolve correctly. It currently defaults to `/AcuityFlow/`.
 
 ## Documentation
 
