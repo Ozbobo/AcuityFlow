@@ -9,7 +9,7 @@ import About from './pages/About';
 export default function App() {
   return (
     <ShiftProvider>
-      <BrowserRouter>
+      <BrowserRouter basename={import.meta.env.BASE_URL}>
         <div className="app-shell">
           <Routes>
             <Route path="/" element={<Setup />} />
