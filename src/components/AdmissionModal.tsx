@@ -7,15 +7,19 @@ import BottomSheet from './BottomSheet';
 interface Props {
   open: boolean;
   onClose: () => void;
+  preSelectedRoom?: number | null;
 }
 
-export default function AdmissionModal({ open, onClose }: Props) {
+export default function AdmissionModal({ open, onClose, preSelectedRoom }: Props) {
   const { state, dispatch } = useShift();
   const [roomNumber, setRoomNumber] = useState<number | null>(null);
   const [level, setLevel] = useState<Criticality | null>(null);
   const [suggestions, setSuggestions] = useState<Suggestion[] | null>(null);
 
   const empties = useMemo(() => emptyRooms(state), [state]);
+
+  // When opening with a pre-selected room, use it as default
+  const effectiveRoom = roomNumber ?? preSelectedRoom ?? null;
 
   const reset = () => {
     setRoomNumber(null);
@@ -29,15 +33,15 @@ export default function AdmissionModal({ open, onClose }: Props) {
   };
 
   const findBest = () => {
-    if (roomNumber === null || level === null) return;
-    const result = recommend(roomNumber, level, state);
+    if (effectiveRoom === null || level === null) return;
+    const result = recommend(effectiveRoom, level, state);
     setSuggestions(result);
   };
 
   const assign = (rnId: number) => {
-    if (roomNumber === null || level === null) return;
-    dispatch({ type: 'SET_CRITICALITY', room: roomNumber, level });
-    dispatch({ type: 'MOVE_ROOM', room: roomNumber, toRnId: rnId });
+    if (effectiveRoom === null || level === null) return;
+    dispatch({ type: 'SET_CRITICALITY', room: effectiveRoom, level });
+    dispatch({ type: 'MOVE_ROOM', room: effectiveRoom, toRnId: rnId });
     close();
   };
 
@@ -107,8 +111,8 @@ export default function AdmissionModal({ open, onClose }: Props) {
                 style={{
                   padding: 'var(--space-2)',
                   borderRadius: 'var(--radius-sm)',
-                  background: roomNumber === r.number ? 'var(--primary)' : 'var(--bg)',
-                  color: roomNumber === r.number ? 'var(--primary-contrast)' : 'inherit',
+                  background: effectiveRoom === r.number ? 'var(--primary)' : 'var(--bg)',
+                  color: effectiveRoom === r.number ? 'var(--primary-contrast)' : 'inherit',
                   border: '1px solid var(--border)',
                   fontWeight: 700,
                 }}
@@ -157,7 +161,7 @@ export default function AdmissionModal({ open, onClose }: Props) {
 
         <button
           className="btn btn-primary"
-          disabled={roomNumber === null || level === null}
+          disabled={effectiveRoom === null || level === null}
           onClick={findBest}
         >
           Find best RN
