@@ -49,7 +49,7 @@ export default function About() {
         onConfirm={() => {
           newShift();
           setConfirm(false);
-          navigate('/');
+          navigate('/rns');
         }}
       />
     </>

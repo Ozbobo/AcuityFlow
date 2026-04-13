@@ -1,9 +1,9 @@
 import { NavLink } from 'react-router-dom';
 
 const items = [
-  { to: '/', label: 'Setup' },
-  { to: '/census', label: 'Census' },
-  { to: '/assignments', label: 'Assign' },
+  { to: '/rns', label: 'RNs' },
+  { to: '/', label: 'Map' },
+  { to: '/patients', label: 'Patients' },
 ];
 
 export default function BottomNav() {
