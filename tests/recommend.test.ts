@@ -22,7 +22,7 @@ function buildState(args: {
     }
     return { id, assignedRooms: nums, locked: false };
   });
-  return { ratio: args.ratio, rnCount: rns.length, rooms, rns };
+  return { ratio: args.ratio, rnCount: rns.length, rooms, rns, distributed: true };
 }
 
 describe('recommend', () => {

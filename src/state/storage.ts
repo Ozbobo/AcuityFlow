@@ -17,6 +17,11 @@ export function loadShift(): ShiftState {
     ) {
       return createInitialState();
     }
+    // Migration: old data lacks `distributed`. If any RN has assigned rooms,
+    // the shift was already distributed.
+    if (typeof parsed.distributed !== 'boolean') {
+      parsed.distributed = parsed.rns.some((rn) => rn.assignedRooms.length > 0);
+    }
     return parsed;
   } catch {
     return createInitialState();

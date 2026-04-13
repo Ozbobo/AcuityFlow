@@ -22,6 +22,7 @@ export interface ShiftState {
   rnCount: number;
   rooms: Room[];
   rns: RN[];
+  distributed: boolean;
 }
 
 export interface Suggestion {

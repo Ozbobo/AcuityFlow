@@ -11,5 +11,6 @@ export function createInitialState(): ShiftState {
     rnCount: 0,
     rooms: createEmptyRooms(),
     rns: [],
+    distributed: false,
   };
 }

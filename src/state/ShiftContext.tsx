@@ -65,7 +65,7 @@ function reducer(state: ShiftState, action: Action): ShiftState {
         );
         return { ...r, assignedTo: assignedTo === -1 ? null : assignedTo };
       });
-      return { ...state, rns, rooms };
+      return { ...state, rns, rooms, distributed: true };
     }
 
     case 'MOVE_ROOM': {
