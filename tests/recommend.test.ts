@@ -20,7 +20,7 @@ function buildState(args: {
       const r = getRoom(rooms, n);
       if (r) r.assignedTo = id;
     }
-    return { id, assignedRooms: nums };
+    return { id, assignedRooms: nums, locked: false };
   });
   return { ratio: args.ratio, rnCount: rns.length, rooms, rns };
 }

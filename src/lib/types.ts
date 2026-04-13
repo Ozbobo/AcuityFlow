@@ -14,6 +14,7 @@ export interface Room {
 export interface RN {
   id: number;              // 0-based; displayed as RN{id+1}
   assignedRooms: number[]; // room numbers
+  locked: boolean;         // true = frozen (keeps rooms, skipped for new patients)
 }
 
 export interface ShiftState {

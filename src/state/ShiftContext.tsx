@@ -11,6 +11,7 @@ type Action =
   | { type: 'SET_CRITICALITY'; room: number; level: Criticality | null }
   | { type: 'DISTRIBUTE' }
   | { type: 'MOVE_ROOM'; room: number; toRnId: number }
+  | { type: 'TOGGLE_LOCK'; rnId: number }
   | { type: 'NEW_SHIFT' }
   | { type: 'LOAD'; state: ShiftState };
 
@@ -26,7 +27,7 @@ function reducer(state: ShiftState, action: Action): ShiftState {
       const rnCount = Math.max(0, action.value);
       const rns: RN[] = Array.from({ length: rnCount }, (_, id) => {
         const existing = state.rns.find((r) => r.id === id);
-        return existing ?? { id, assignedRooms: [] };
+        return existing ?? { id, assignedRooms: [], locked: false };
       });
       // Clear assignments for rooms pointing at removed RNs
       const rooms = state.rooms.map((r) =>
@@ -78,6 +79,13 @@ function reducer(state: ShiftState, action: Action): ShiftState {
         r.number === action.room ? { ...r, assignedTo: action.toRnId } : r
       );
       return { ...state, rns, rooms };
+    }
+
+    case 'TOGGLE_LOCK': {
+      const rns = state.rns.map((rn) =>
+        rn.id === action.rnId ? { ...rn, locked: !rn.locked } : rn
+      );
+      return { ...state, rns };
     }
 
     case 'NEW_SHIFT':

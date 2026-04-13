@@ -19,6 +19,7 @@ export function distribute(rooms: Room[], rnCount: number): RN[] {
   const emptyRns: RN[] = Array.from({ length: rnCount }, (_, id) => ({
     id,
     assignedRooms: [],
+    locked: false,
   }));
 
   if (occupied.length === 0) return emptyRns;
@@ -36,6 +37,7 @@ export function distribute(rooms: Room[], rnCount: number): RN[] {
   return chunks.map((chunk, id) => ({
     id,
     assignedRooms: chunk.map((r) => r.number),
+    locked: false,
   }));
 }
 
