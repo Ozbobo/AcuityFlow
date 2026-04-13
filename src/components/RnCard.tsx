@@ -2,11 +2,12 @@ import { RN, Room, SCORE } from '../lib/types';
 
 interface Props {
   rn: RN;
-  rooms: Room[]; // all rooms, for looking up criticality
+  rooms: Room[];
   onRoomTap?: (roomNumber: number) => void;
+  onToggleLock?: () => void;
 }
 
-export default function RnCard({ rn, rooms, onRoomTap }: Props) {
+export default function RnCard({ rn, rooms, onRoomTap, onToggleLock }: Props) {
   const byNumber = new Map(rooms.map((r) => [r.number, r]));
   const score = rn.assignedRooms.reduce((sum, n) => {
     const r = byNumber.get(n);
@@ -18,17 +19,37 @@ export default function RnCard({ rn, rooms, onRoomTap }: Props) {
       className="card"
       style={{
         borderLeft: `4px solid var(--rn-${rn.id % 6})`,
+        opacity: rn.locked ? 0.6 : 1,
       }}
     >
       <div
         style={{
           display: 'flex',
           justifyContent: 'space-between',
-          alignItems: 'baseline',
+          alignItems: 'center',
           marginBottom: 'var(--space-2)',
         }}
       >
-        <strong>RN{rn.id + 1}</strong>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
+          <strong>RN{rn.id + 1}</strong>
+          {onToggleLock && (
+            <button
+              onClick={onToggleLock}
+              aria-label={rn.locked ? `Unlock RN ${rn.id + 1}` : `Lock RN ${rn.id + 1}`}
+              style={{
+                padding: '2px 8px',
+                borderRadius: 'var(--radius-sm)',
+                fontSize: 11,
+                fontWeight: 600,
+                background: rn.locked ? 'var(--danger)' : 'var(--bg)',
+                color: rn.locked ? '#fff' : 'var(--text-muted)',
+                border: rn.locked ? 'none' : '1px solid var(--border)',
+              }}
+            >
+              {rn.locked ? 'Locked' : 'Lock'}
+            </button>
+          )}
+        </div>
         <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>
           {rn.assignedRooms.length} rooms · score {score}
         </span>
