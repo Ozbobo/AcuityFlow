@@ -102,4 +102,28 @@ describe('recommend', () => {
     // Both should appear; RN with rooms has minDistance to 917 = 1, empty RN has 0
     expect(result.map((s) => s.rnId).sort()).toEqual([0, 1]);
   });
+
+  it('excludes locked RNs from suggestions', () => {
+    const state = buildState({
+      ratio: 5,
+      rns: { 0: [915], 1: [917] },
+      criticalities: { 915: 'medium', 917: 'medium' },
+    });
+    state.rns[0].locked = true;
+    const result = recommend(919, 'low', state);
+    expect(result.find((s) => s.rnId === 0)).toBeUndefined();
+    expect(result.find((s) => s.rnId === 1)).toBeDefined();
+  });
+
+  it('returns empty when all RNs are locked', () => {
+    const state = buildState({
+      ratio: 5,
+      rns: { 0: [915], 1: [917] },
+      criticalities: { 915: 'medium', 917: 'medium' },
+    });
+    state.rns[0].locked = true;
+    state.rns[1].locked = true;
+    const result = recommend(919, 'low', state);
+    expect(result).toEqual([]);
+  });
 });

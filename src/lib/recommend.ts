@@ -12,7 +12,7 @@ export function recommend(
 ): Suggestion[] {
   // Step 1: hard filter — drop RNs at or above capacity
   const eligible = state.rns.filter(
-    (rn) => rn.assignedRooms.length < state.ratio
+    (rn) => !rn.locked && rn.assignedRooms.length < state.ratio
   );
 
   if (eligible.length === 0) return [];
