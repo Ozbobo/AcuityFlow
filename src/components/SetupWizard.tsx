@@ -1,0 +1,160 @@
+import { useState } from 'react';
+import { useShift, occupiedCount, criticalityCounts, recommendedRnCount } from '../state/ShiftContext';
+import { MIN_RATIO, MAX_RATIO } from '../state/initialState';
+import { Room } from '../lib/types';
+import CriticalityPicker from './CriticalityPicker';
+
+export default function SetupWizard() {
+  const { state, dispatch } = useShift();
+  const [picking, setPicking] = useState<Room | null>(null);
+
+  const total = occupiedCount(state);
+  const counts = criticalityCounts(state);
+  const recommended = recommendedRnCount(state);
+  const canDistribute = total > 0 && state.rnCount > 0;
+  const underStaffed = state.rnCount > 0 && state.rnCount < recommended;
+
+  return (
+    <div
+      style={{
+        position: 'fixed',
+        inset: 0,
+        zIndex: 50,
+        background: 'var(--bg)',
+        overflowY: 'auto',
+      }}
+    >
+      <header className="page-header">
+        <h2>New Shift</h2>
+      </header>
+
+      <main className="page">
+        <div className="card">
+          <div className="label">Available RNs</div>
+          <div className="stepper" style={{ marginTop: 'var(--space-2)' }}>
+            <button
+              onClick={() =>
+                dispatch({ type: 'SET_RN_COUNT', value: Math.max(0, state.rnCount - 1) })
+              }
+              aria-label="Decrease RN count"
+            >
+              −
+            </button>
+            <div className="val">{state.rnCount}</div>
+            <button
+              onClick={() => dispatch({ type: 'SET_RN_COUNT', value: state.rnCount + 1 })}
+              aria-label="Increase RN count"
+            >
+              +
+            </button>
+          </div>
+          {recommended > 0 && (
+            <div
+              style={{
+                fontSize: 12,
+                color: underStaffed ? 'var(--danger)' : 'var(--primary)',
+                marginTop: 'var(--space-2)',
+              }}
+            >
+              Recommended: {recommended} ({total} patients ÷ ratio {state.ratio})
+              {underStaffed && ' — under-staffed'}
+            </div>
+          )}
+        </div>
+
+        <div className="card">
+          <div className="label">Ratio (patients per RN)</div>
+          <div className="stepper" style={{ marginTop: 'var(--space-2)' }}>
+            <button
+              onClick={() =>
+                dispatch({ type: 'SET_RATIO', value: Math.max(MIN_RATIO, state.ratio - 1) })
+              }
+              aria-label="Decrease ratio"
+            >
+              −
+            </button>
+            <div className="val">{state.ratio}</div>
+            <button
+              onClick={() =>
+                dispatch({ type: 'SET_RATIO', value: Math.min(MAX_RATIO, state.ratio + 1) })
+              }
+              aria-label="Increase ratio"
+            >
+              +
+            </button>
+            <span style={{ marginLeft: 'auto', fontSize: 11, color: 'var(--text-muted)' }}>
+              max {MAX_RATIO}
+            </span>
+          </div>
+        </div>
+
+        <div className="card">
+          <div className="label">Census — tap rooms to set acuity</div>
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(5, 1fr)',
+              gap: 'var(--space-2)',
+              marginTop: 'var(--space-2)',
+              maxHeight: 260,
+              overflowY: 'auto',
+            }}
+          >
+            {state.rooms.map((r) => {
+              const chipClass = r.criticality
+                ? `chip-${r.criticality === 'medium' ? 'med' : r.criticality}`
+                : 'chip-empty';
+              return (
+                <button
+                  key={r.number}
+                  onClick={() => setPicking(r)}
+                  style={{
+                    padding: 'var(--space-2)',
+                    borderRadius: 'var(--radius-sm)',
+                    border: '1px solid var(--border)',
+                    fontWeight: 700,
+                    fontSize: 12,
+                    textAlign: 'center',
+                  }}
+                >
+                  <div>{r.number}</div>
+                  <span className={`chip ${chipClass}`} style={{ fontSize: 9, padding: '1px 6px' }}>
+                    {r.criticality ? r.criticality[0].toUpperCase() : '—'}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+          <div style={{ marginTop: 'var(--space-2)', display: 'flex', gap: 'var(--space-2)', flexWrap: 'wrap' }}>
+            <span className="chip chip-high">{counts.high} HIGH</span>
+            <span className="chip chip-med">{counts.medium} MED</span>
+            <span className="chip chip-low">{counts.low} LOW</span>
+            <span style={{ marginLeft: 'auto', fontWeight: 600, fontSize: 13 }}>
+              {total} occupied
+            </span>
+          </div>
+        </div>
+
+        <button
+          className="btn btn-primary"
+          disabled={!canDistribute}
+          onClick={() => dispatch({ type: 'DISTRIBUTE' })}
+        >
+          Distribute →
+        </button>
+      </main>
+
+      <CriticalityPicker
+        open={picking !== null}
+        roomNumber={picking?.number ?? null}
+        current={picking?.criticality ?? null}
+        onClose={() => setPicking(null)}
+        onPick={(level) => {
+          if (picking) {
+            dispatch({ type: 'SET_CRITICALITY', room: picking.number, level });
+          }
+        }}
+      />
+    </div>
+  );
+}
