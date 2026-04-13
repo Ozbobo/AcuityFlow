@@ -44,6 +44,44 @@ export default function AdmissionModal({ open, onClose }: Props) {
   return (
     <BottomSheet open={open} title="New Admission" onClose={close}>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
+        {/* RN lock toggles */}
+        {state.rns.length > 0 && (
+          <div>
+            <div className="label" style={{ marginBottom: 'var(--space-2)' }}>
+              RN Availability
+            </div>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--space-2)' }}>
+              {state.rns.map((rn) => (
+                <button
+                  key={rn.id}
+                  onClick={() => dispatch({ type: 'TOGGLE_LOCK', rnId: rn.id })}
+                  aria-label={
+                    rn.locked
+                      ? `Unlock RN ${rn.id + 1}`
+                      : `Lock RN ${rn.id + 1}`
+                  }
+                  style={{
+                    padding: 'var(--space-2) var(--space-3)',
+                    borderRadius: 'var(--radius-sm)',
+                    background: rn.locked ? 'var(--danger)' : 'var(--bg)',
+                    color: rn.locked ? '#fff' : 'inherit',
+                    border: rn.locked ? 'none' : '1px solid var(--border)',
+                    fontWeight: 600,
+                    fontSize: 12,
+                  }}
+                >
+                  RN{rn.id + 1}{rn.locked ? ' Locked' : ''}
+                </button>
+              ))}
+            </div>
+            {state.rns.some((rn) => rn.locked) && (
+              <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 'var(--space-2)' }}>
+                Locked RNs won't appear in suggestions
+              </div>
+            )}
+          </div>
+        )}
+
         <div>
           <div className="label" style={{ marginBottom: 'var(--space-2)' }}>
             Room (empty rooms only)
@@ -130,7 +168,7 @@ export default function AdmissionModal({ open, onClose }: Props) {
             <div className="label">Suggestions</div>
             {suggestions.length === 0 && (
               <div style={{ color: 'var(--danger)', fontSize: 13 }}>
-                All RNs at capacity. Consider increasing ratio or adding an RN.
+                All RNs at capacity or locked. Consider unlocking an RN or increasing the ratio.
               </div>
             )}
             {suggestions.map((s) => (
