@@ -11,13 +11,21 @@ export function recommend(
   state: ShiftState
 ): Suggestion[] {
   // Step 1: hard filter — drop RNs at or above capacity
-  const eligible = state.rns.filter(
+  let eligible = state.rns.filter(
     (rn) => !rn.locked && rn.assignedRooms.length < state.ratio
   );
 
   if (eligible.length === 0) return [];
 
-  // Step 2: score each eligible RN
+  // Step 2: if admitting a HIGH patient, prefer RNs with 0 existing highs.
+  // Only apply when at least one eligible RN has 0 highs — otherwise every
+  // eligible RN already has a high and doubling up is necessary.
+  if (newLevel === 'high') {
+    const zeroHigh = eligible.filter((rn) => highCount(rn, state) === 0);
+    if (zeroHigh.length > 0) eligible = zeroHigh;
+  }
+
+  // Step 3: score each eligible RN
   const scored = eligible.map((rn) => {
     const d = minDistance(newRoom, rn.assignedRooms);
     const currentLoad = computeLoad(rn, state);
@@ -45,6 +53,15 @@ function minDistance(newRoom: number, roomNumbers: number[]): number {
     if (d < min) min = d;
   }
   return min;
+}
+
+function highCount(rn: RN, state: ShiftState): number {
+  let n = 0;
+  for (const num of rn.assignedRooms) {
+    const r = getRoom(state.rooms, num);
+    if (r && r.criticality === 'high') n++;
+  }
+  return n;
 }
 
 function computeLoad(rn: RN, state: ShiftState): number {

@@ -126,4 +126,42 @@ describe('recommend', () => {
     const result = recommend(919, 'low', state);
     expect(result).toEqual([]);
   });
+
+  it('when admitting HIGH, prefers RN with 0 existing highs over RN with 1', () => {
+    const state = buildState({
+      ratio: 5,
+      rns: { 0: [915], 1: [929] }, // RN0 already has a high; RN1 has only low
+      criticalities: { 915: 'high', 929: 'low' },
+    });
+    // Room 923 is roughly equidistant from both. Without the rule, RN1's
+    // lighter load might tie or win anyway, but the rule should exclude RN0.
+    const result = recommend(923, 'high', state);
+    expect(result.find((s) => s.rnId === 0)).toBeUndefined();
+    expect(result.find((s) => s.rnId === 1)).toBeDefined();
+  });
+
+  it('when admitting HIGH and every RN already has a high, doubling up is allowed', () => {
+    const state = buildState({
+      ratio: 5,
+      rns: { 0: [915], 1: [929] }, // both already have a high
+      criticalities: { 915: 'high', 929: 'high' },
+    });
+    const result = recommend(923, 'high', state);
+    // Both should be eligible — necessity clause
+    expect(result.length).toBeGreaterThanOrEqual(2);
+    expect(result.find((s) => s.rnId === 0)).toBeDefined();
+    expect(result.find((s) => s.rnId === 1)).toBeDefined();
+  });
+
+  it('high-spread rule does not apply to medium/low admissions', () => {
+    const state = buildState({
+      ratio: 5,
+      rns: { 0: [915], 1: [929] }, // RN0 has a high, RN1 has a low
+      criticalities: { 915: 'high', 929: 'low' },
+    });
+    const result = recommend(923, 'medium', state);
+    // Both should be eligible — rule only applies when newLevel is 'high'
+    expect(result.find((s) => s.rnId === 0)).toBeDefined();
+    expect(result.find((s) => s.rnId === 1)).toBeDefined();
+  });
 });

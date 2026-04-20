@@ -33,6 +33,10 @@ export function distribute(rooms: Room[], rnCount: number): RN[] {
   // Boundary swap pass to improve criticality mix.
   rebalanceMix(chunks);
 
+  // Final pass: spread high-acuity rooms so no RN has 2+ highs while
+  // another RN has 0, unless contiguity makes it unavoidable.
+  rebalanceHighs(chunks);
+
   // Convert to RN objects.
   return chunks.map((chunk, id) => ({
     id,
@@ -183,6 +187,58 @@ function rebalanceMix(chunks: Room[][]): void {
         // Revert
         chunks[i][leftBoundary] = leftRoom;
         chunks[i + 1][rightBoundary] = rightRoom;
+      }
+    }
+    if (!improved) return;
+  }
+}
+
+function highCountOf(chunk: Room[]): number {
+  let n = 0;
+  for (const r of chunk) if (r.criticality === 'high') n++;
+  return n;
+}
+
+/**
+ * Boundary-swap pass to spread high-acuity rooms across chunks.
+ * Violation: some chunk has ≥2 highs while another has 0. Tries swaps
+ * between adjacent chunks to move a high out of an over-loaded chunk
+ * and a non-high in. Contiguity is preserved because we only touch
+ * boundary rooms.
+ */
+function rebalanceHighs(chunks: Room[][]): void {
+  for (let pass = 0; pass < 5; pass++) {
+    const highs = chunks.map(highCountOf);
+    const maxH = Math.max(...highs);
+    const minH = Math.min(...highs);
+    if (!(maxH >= 2 && minH === 0)) return;
+
+    let improved = false;
+    for (let i = 0; i < chunks.length - 1; i++) {
+      const left = chunks[i];
+      const right = chunks[i + 1];
+      if (left.length === 0 || right.length === 0) continue;
+      const leftIdx = left.length - 1;
+      const rightIdx = 0;
+      const leftRoom = left[leftIdx];
+      const rightRoom = right[rightIdx];
+
+      const lH = highCountOf(left);
+      const rH = highCountOf(right);
+
+      // Left over-loaded, right under-loaded: swap left-boundary high for
+      // right-boundary non-high.
+      if (lH >= 2 && rH === 0 && leftRoom.criticality === 'high' && rightRoom.criticality !== 'high') {
+        left[leftIdx] = rightRoom;
+        right[rightIdx] = leftRoom;
+        improved = true;
+        continue;
+      }
+      // Mirror: right over-loaded, left under-loaded.
+      if (rH >= 2 && lH === 0 && rightRoom.criticality === 'high' && leftRoom.criticality !== 'high') {
+        left[leftIdx] = rightRoom;
+        right[rightIdx] = leftRoom;
+        improved = true;
       }
     }
     if (!improved) return;

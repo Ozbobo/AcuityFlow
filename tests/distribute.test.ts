@@ -109,6 +109,44 @@ describe('distribute', () => {
     expect(distribute(rooms, 0)).toEqual([]);
   });
 
+  it('spreads highs: 2 highs + 2 lows among 2 RNs → each RN gets 1 high', () => {
+    const rooms = occupy(createEmptyRooms(), {
+      915: 'high', 917: 'low',
+      919: 'low', 921: 'high',
+    });
+    const rns = distribute(rooms, 2);
+    const highsPerRn = rns.map((rn) =>
+      rn.assignedRooms.filter((n) => getRoom(rooms, n)!.criticality === 'high').length
+    );
+    expect(Math.max(...highsPerRn)).toBe(1);
+    expect(Math.min(...highsPerRn)).toBe(1);
+  });
+
+  it('spreads highs: when fewer highs than RNs, no RN gets 2 highs', () => {
+    const rooms = occupy(createEmptyRooms(), {
+      915: 'high', 917: 'low', 919: 'low',
+      921: 'low', 923: 'high', 925: 'low',
+    });
+    const rns = distribute(rooms, 3);
+    const highsPerRn = rns.map((rn) =>
+      rn.assignedRooms.filter((n) => getRoom(rooms, n)!.criticality === 'high').length
+    );
+    // 2 highs, 3 RNs → no RN should have 2 while another has 0
+    expect(Math.max(...highsPerRn)).toBeLessThanOrEqual(1);
+  });
+
+  it('spreads highs: more highs than RNs → doubling is necessary and OK', () => {
+    const rooms = occupy(createEmptyRooms(), {
+      915: 'high', 917: 'high', 919: 'high', 921: 'high',
+    });
+    const rns = distribute(rooms, 2);
+    const highsPerRn = rns.map((rn) =>
+      rn.assignedRooms.filter((n) => getRoom(rooms, n)!.criticality === 'high').length
+    );
+    // All RNs have at least 1 high — doubling is then allowed
+    expect(Math.min(...highsPerRn)).toBeGreaterThanOrEqual(1);
+  });
+
   it('fuzz test: score spread stays small across random censuses', () => {
     const levels: Criticality[] = ['high', 'medium', 'low'];
     const allRoomNumbers = createEmptyRooms().map((r) => r.number);
