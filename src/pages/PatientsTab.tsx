@@ -3,12 +3,14 @@ import { useShift } from '../state/ShiftContext';
 import { Room } from '../lib/types';
 import ActionPicker from '../components/ActionPicker';
 import AdmissionModal from '../components/AdmissionModal';
+import ShiftSettings from '../components/ShiftSettings';
 
 export default function PatientsTab() {
   const { state } = useShift();
   const [actionRoom, setActionRoom] = useState<Room | null>(null);
   const [admissionOpen, setAdmissionOpen] = useState(false);
   const [admissionRoom, setAdmissionRoom] = useState<number | null>(null);
+  const [settingsOpen, setSettingsOpen] = useState(false);
 
   const occupied = state.rooms
     .filter((r) => r.occupied)
@@ -31,6 +33,9 @@ export default function PatientsTab() {
     <>
       <header className="page-header">
         <h2>Patients</h2>
+        <button className="btn btn-ghost" onClick={() => setSettingsOpen(true)}>
+          ⚙ Edit
+        </button>
       </header>
 
       <main className="page">
@@ -126,6 +131,8 @@ export default function PatientsTab() {
         }}
         preSelectedRoom={admissionRoom}
       />
+
+      <ShiftSettings open={settingsOpen} onClose={() => setSettingsOpen(false)} />
     </>
   );
 }

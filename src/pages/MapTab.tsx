@@ -4,12 +4,14 @@ import { Room } from '../lib/types';
 import FloorMap from '../components/FloorMap';
 import ActionPicker from '../components/ActionPicker';
 import AdmissionModal from '../components/AdmissionModal';
+import ShiftSettings from '../components/ShiftSettings';
 
 export default function MapTab() {
   const { state } = useShift();
   const [actionRoom, setActionRoom] = useState<Room | null>(null);
   const [admissionOpen, setAdmissionOpen] = useState(false);
   const [admissionRoom, setAdmissionRoom] = useState<number | null>(null);
+  const [settingsOpen, setSettingsOpen] = useState(false);
 
   const handleRoomClick = (room: Room) => {
     if (room.occupied) {
@@ -24,6 +26,9 @@ export default function MapTab() {
     <>
       <header className="page-header">
         <h2>Map</h2>
+        <button className="btn btn-ghost" onClick={() => setSettingsOpen(true)}>
+          ⚙ Edit
+        </button>
       </header>
 
       <main className="page">
@@ -45,6 +50,8 @@ export default function MapTab() {
         }}
         preSelectedRoom={admissionRoom}
       />
+
+      <ShiftSettings open={settingsOpen} onClose={() => setSettingsOpen(false)} />
     </>
   );
 }

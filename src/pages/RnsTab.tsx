@@ -5,12 +5,14 @@ import { Room } from '../lib/types';
 import RnCard from '../components/RnCard';
 import ConfirmDialog from '../components/ConfirmDialog';
 import ActionPicker from '../components/ActionPicker';
+import ShiftSettings from '../components/ShiftSettings';
 
 export default function RnsTab() {
   const { state, dispatch, newShift } = useShift();
   const navigate = useNavigate();
   const [confirmNew, setConfirmNew] = useState(false);
   const [actionRoom, setActionRoom] = useState<Room | null>(null);
+  const [settingsOpen, setSettingsOpen] = useState(false);
 
   const occupied = occupiedCount(state);
   const totalRooms = state.rooms.length;
@@ -20,6 +22,9 @@ export default function RnsTab() {
       <header className="page-header">
         <h2>RNs</h2>
         <div style={{ display: 'flex', gap: 'var(--space-2)' }}>
+          <button className="btn btn-ghost" onClick={() => setSettingsOpen(true)}>
+            ⚙ Edit
+          </button>
           <button className="btn btn-ghost" onClick={() => navigate('/about')}>
             About
           </button>
@@ -85,6 +90,8 @@ export default function RnsTab() {
       />
 
       <ActionPicker room={actionRoom} onClose={() => setActionRoom(null)} />
+
+      <ShiftSettings open={settingsOpen} onClose={() => setSettingsOpen(false)} />
     </>
   );
 }
