@@ -85,7 +85,7 @@ export default function ShiftSettings({ open, onClose }: Props) {
                 overflowY: 'auto',
               }}
             >
-              {state.rooms.map((r) => {
+              {[...state.rooms].sort((a, b) => a.number - b.number).map((r) => {
                 const chipClass = r.criticality
                   ? `chip-${r.criticality === 'medium' ? 'med' : r.criticality}`
                   : 'chip-empty';
